@@ -46,8 +46,9 @@ a.eml-pro {
 
 
 .wrap .eml-apply-settings-to-network:hover {
-    border-color: #d54e21;
-    background: #EC5F30;
+    border-color: #135e96;
+    background: #135e96;
+    color: #fff;
 }
 
 
@@ -239,11 +240,6 @@ a.eml-pro {
 .wp-core-ui .button-primary.eml-warning-button {
     background: #d54e21;
     border-color: #EC5F30 #940B0B #940B0B;
-    -webkit-box-shadow: 0 1px 0 #940B0B;
-    box-shadow: 0 1px 0 #940B0B;
-    color: #fff;
-    text-decoration: none;
-    text-shadow: 0 -1px 1px #940B0B, 1px 0 1px #940B0B, 0 1px 1px #940B0B, -1px 0 1px #940B0B;
 }
 .wp-core-ui #eml-submit-settings-cleanup:hover,
 .wp-core-ui .button-primary.eml-warning-button:hover {
@@ -391,4 +387,92 @@ a.eml-pro {
 }
 .wrap.eml-options h2 span.premium {
     font-size: 0.5em;
+}
+
+
+/* == Admin Notices Styles == */
+
+.eml-admin-notice.notice {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+
+    border-width: 1px;
+    border-style: solid;
+
+    background-color: #fff;
+
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.1);
+
+}
+.eml-admin-notice.notice:before {
+    content: '\f534';
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin: 0 10px 0 5px;  
+}
+
+.eml-admin-notice.notice.is-dismissible {
+    padding-right: 55px;
+}
+
+
+.eml-admin-notice.notice p {
+    flex-grow: 1;
+}
+.eml-admin-notice.notice p,
+.eml-admin-notice.notice .button {
+    font-size: 14px;
+}
+.eml-admin-notice.notice .header {
+    font-size: 15px;
+}
+.eml-admin-notice.notice .button {
+    flex-grow: 0;
+    padding: 2px 15px;
+    margin: 0 10px;
+    border-radius: 5px;
+}
+
+.eml-admin-notice.notice.notice-news {
+    border-color: #b6deb9;  
+    border-left: solid 4px #50b03a;
+}
+.eml-admin-notice.notice.notice-news:before {
+    content: '\f534';
+    color: #50b03a;
+}
+
+.eml-admin-notice.notice.notice-news .button {
+    background-color: #50b03a;
+    border-color: #50b03a;
+}
+.eml-admin-notice.notice.notice-news .button:hover,  
+.eml-admin-notice.notice.notice-news .button:focus,
+.eml-admin-notice.notice.notice-news .button:active {
+    background-color: #41902f;
+    border-color: #41902f;
+}
+
+.eml-admin-notice.notice.notice-warning {
+    background-color: #fff;
+    border-color: #deb6b6;  
+
+    border-left: solid 4px #ff0000;
+}
+.eml-admin-notice.notice.notice-warning:before {
+    content: '\f534';
+    color: #ff0000;
+}
+
+.eml-admin-notice.notice.notice-warning .button {
+    background-color: #ff0000;
+    border-color: #ff0000;
+}
+.eml-admin-notice.notice.notice-warning .button:hover,  
+.eml-admin-notice.notice.notice-warning .button:focus,
+.eml-admin-notice.notice.notice-warning .button:active {
+    background-color: #df0000;
+    border-color: #df0000;
 }

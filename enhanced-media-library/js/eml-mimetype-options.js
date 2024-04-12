@@ -77,7 +77,7 @@ window.eml = window.eml || { l10n: {} };
     });
 
     // on mime types form submit
-    $( '#wpuxss-eml-form-mimetypes' ).submit( function( event ) {
+    $( '#wpuxss-eml-form-mimetypes' ).on( 'submit', function( event ) {
 
         var submit_it = true,
             alert_title = eml.l10n.mime_error_cannot_save_title,

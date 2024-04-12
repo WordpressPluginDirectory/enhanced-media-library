@@ -1,4 +1,12 @@
+window.eml = window.eml || { l10n: {} };
+
+
 ( function( $ ) {
+
+    _.extend( eml.l10n, wpuxss_eml_admin_l10n );
+
+
+
 
     var w;
 
@@ -100,5 +108,16 @@
     window.emlFullscreenSpinnerStop = function() {
         $('.fullscreen-spinner-box').remove();
     }
+
+    $( document ).on( 'click', '.eml-admin-notice .notice-dismiss', function( event ) {
+
+        var notice_id = $( event.currentTarget ).parent('.eml-admin-notice').attr('id');
+
+        $.post( ajaxurl, {
+            nonce:     eml.l10n.admin_notice_nonce,
+            action:    'eml-admin-notice-dismiss',
+            notice_id: notice_id
+        });        
+    });
 
 })( jQuery );

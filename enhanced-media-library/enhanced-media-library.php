@@ -3,14 +3,14 @@
 Plugin Name: Enhanced Media Library
 Plugin URI: https://wpUXsolutions.com/plugins/enhanced-media-library
 Description: This plugin will be handy for those who need to manage a lot of media files.
-Version: 2.8.9
+Version: 2.8.10
 Author: wpUXsolutions
 Author URI: http://wpUXsolutions.com
 Text Domain: enhanced-media-library
 Domain Path: /languages
 License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
-Copyright 2013-2021  wpUXsolutions  (email : wpUXsolutions@gmail.com)
+Copyright 2013-2024 wpUXsolutions  (email : wpUXsolutions@gmail.com)
 */
 
 
@@ -26,7 +26,7 @@ global $wp_version,
 
 
 
-if ( ! defined('EML_VERSION') ) define( 'EML_VERSION', '2.8.9' );
+if ( ! defined('EML_VERSION') ) define( 'EML_VERSION', '2.8.10' );
 if ( ! defined('EML_PRO') ) define( 'EML_PRO', false );
 
 
@@ -251,15 +251,17 @@ if ( ! function_exists( 'wpuxss_eml_on_wp_loaded' ) ) {
         $wpuxss_eml_taxonomies = get_option( 'wpuxss_eml_taxonomies', array() );
         $taxonomies = get_taxonomies( array(), 'object' );
 
-
         // discover 'foreign' taxonomies
         foreach ( $taxonomies as $taxonomy => $params ) {
 
             if ( ! empty( $params->object_type ) && ! array_key_exists( $taxonomy, $wpuxss_eml_taxonomies ) &&
                  ! in_array( 'revision', $params->object_type ) &&
                  ! in_array( 'nav_menu_item', $params->object_type ) &&
+                 $taxonomy !== 'wp_theme' &&
                  $taxonomy !== 'post_format' &&
-                 $taxonomy !== 'link_category' ) {
+                 $taxonomy !== 'link_category' &&
+                 $taxonomy !== 'wp_pattern_category' &&
+                 $taxonomy !== 'wp_template_part_area' ) {
 
                 $wpuxss_eml_taxonomies[$taxonomy] = array(
                     'eml_media' => 0,
@@ -369,9 +371,19 @@ if ( ! function_exists( 'wpuxss_eml_admin_enqueue_scripts' ) ) {
         wp_enqueue_script(
             'wpuxss-eml-admin-script',
             $wpuxss_eml_dir . 'js/eml-admin.js',
-            array( 'jquery', 'jquery-ui-dialog' ),
+            array( 'jquery', 'jquery-ui-dialog', 'underscore' ),
             EML_VERSION,
             true
+        );
+
+        $admin_l10n = array(
+            'admin_notice_nonce' => wp_create_nonce( 'eml-admin-notice-nonce' )
+        );
+
+        wp_localize_script(
+            'wpuxss-eml-admin-script',
+            'wpuxss_eml_admin_l10n',
+            $admin_l10n
         );
 
 
@@ -584,7 +596,9 @@ if ( ! function_exists( 'wpuxss_eml_enqueue_media' ) ) {
             'saveButton_text'           => __( 'Save Changes', 'enhanced-media-library' ),
 
             'select_all'                => __( 'Select All', 'enhanced-media-library' ),
-            'deselect'                  => __( 'Deselect ', 'enhanced-media-library')
+            'deselect'                  => __( 'Deselect ', 'enhanced-media-library'),
+            'grid_sidebar_width'        => (int) $wpuxss_eml_lib_options['grid_sidebar_width'],
+            'ideal_column_width'        => (int) $wpuxss_eml_lib_options['ideal_column_width'],
         );
 
         wp_localize_script(
@@ -647,6 +661,7 @@ if ( ! function_exists( 'wpuxss_eml_enqueue_media' ) ) {
             $media_grid_l10n = array(
                 'grid_show_caption' => (int) $wpuxss_eml_lib_options['grid_show_caption'],
                 'grid_caption_type' => isset( $wpuxss_eml_lib_options['grid_caption_type'] ) ? sanitize_key( $wpuxss_eml_lib_options['grid_caption_type'] ) : 'title',
+                'ideal_column_width' => (int) $wpuxss_eml_lib_options['ideal_column_width'],
                 'more_details' => __( 'More Details', 'enhanced-media-library' ),
                 'less_details' => __( 'Less Details', 'enhanced-media-library' )
             );
@@ -702,7 +717,7 @@ if ( ! function_exists( 'wpuxss_eml_set_options' ) ) {
 
     function wpuxss_eml_set_options() {
 
-        $wpuxss_eml_taxonomies = get_option( 'wpuxss_eml_taxonomies' );
+        $wpuxss_eml_taxonomies  = get_option( 'wpuxss_eml_taxonomies' );
         $wpuxss_eml_lib_options = get_option( 'wpuxss_eml_lib_options', array() );
         $wpuxss_eml_tax_options = get_option( 'wpuxss_eml_tax_options', array() );
 
@@ -818,7 +833,10 @@ if ( ! function_exists( 'wpuxss_eml_set_options' ) ) {
             'loads_per_page' => 80,
             'grid_show_caption' => 0,
             'grid_caption_type' => 'title',
+            'grid_sidebar_width' => 270,
+            'ideal_column_width' => 170,
             'search_in' => array(
+                'filenames',
                 'titles',
                 'captions',
                 'descriptions'
@@ -827,6 +845,12 @@ if ( ! function_exists( 'wpuxss_eml_set_options' ) ) {
 
         $wpuxss_eml_lib_options = array_intersect_key( $wpuxss_eml_lib_options, $eml_lib_options_defaults );
         $wpuxss_eml_lib_options = array_merge( $eml_lib_options_defaults, $wpuxss_eml_lib_options );
+
+        // check previous version
+        if ( version_compare( get_option( 'wpuxss_eml_version', '' ), '2.8.9', '<=' ) ) {
+            // ensure that filenames included in the search by default
+            array_push( $wpuxss_eml_lib_options['search_in'], 'filenames' );
+        }
 
         update_option( 'wpuxss_eml_lib_options', $wpuxss_eml_lib_options );
 
@@ -845,44 +869,26 @@ if ( ! function_exists( 'wpuxss_eml_set_options' ) ) {
 
 
         // MIME types
-        $wpuxss_eml_site_mimes_backup = get_site_option( 'wpuxss_eml_mimes_backup' );
-
         if ( false === get_option( 'wpuxss_eml_mimes' ) ) {
 
             $allowed_mimes = get_allowed_mime_types();
-            $default_mimes = array();
 
-            foreach ( wp_get_mime_types() as $type => $mime ) {
-
-                $wpuxss_eml_mimes[$type] = $default_mimes[$type] = array(
-                    'mime'     => $mime,
-                    'singular' => $mime,
-                    'plural'   => $mime,
+            foreach ( wp_get_mime_types() as $ext => $type ) {
+                $wpuxss_eml_mimes[$ext] = array(
+                    'mime'     => $type,
+                    'singular' => $type,
+                    'plural'   => $type,
                     'filter'   => 0,
-                    'upload'   => isset($allowed_mimes[$type]) ? 1 : 0
+                    'upload'   => isset($allowed_mimes[$ext]) ? 1 : 0
                 );
             }
 
-            $wpuxss_eml_mimes['pdf']['singular'] = 'PDF';
-            $wpuxss_eml_mimes['pdf']['plural'] = 'PDFs';
-            $wpuxss_eml_mimes['pdf']['filter'] = 1;
-
             update_option( 'wpuxss_eml_mimes', $wpuxss_eml_mimes );
-
-            if ( false === $wpuxss_eml_site_mimes_backup ) {
-                update_site_option( 'wpuxss_eml_mimes_backup', $default_mimes );
-                $wpuxss_eml_site_mimes_backup = $default_mimes;
-            }
         }
 
-        if ( is_multisite() ) {
-
-            $wpuxss_eml_mimes_backup = get_option( 'wpuxss_eml_mimes_backup' );
-            delete_option( 'wpuxss_eml_mimes_backup' );
-
-            if ( false === $wpuxss_eml_site_mimes_backup ) {
-                update_site_option( 'wpuxss_eml_mimes_backup', $wpuxss_eml_mimes_backup );
-            }
+        if ( version_compare( get_option( 'wpuxss_eml_version', '' ), '2.8.9', '<=' ) ) {
+            // getting rid of mime type backup
+            delete_site_option( 'wpuxss_eml_mimes_backup' );
         }
 
         do_action( 'wpuxss_eml_set_options' );

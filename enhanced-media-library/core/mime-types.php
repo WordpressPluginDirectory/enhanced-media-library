@@ -22,43 +22,58 @@ if ( ! function_exists( 'wpuxss_eml_mimes_validate' ) ) {
 
         if ( isset( $_POST['eml-restore-mime-types-settings'] ) ) {
 
-            $input = get_site_option( 'wpuxss_eml_mimes_backup', array() );
-
             add_settings_error(
                 'mime-types',
                 'eml_mime_types_restored',
                 __('MIME Types settings restored.', 'enhanced-media-library'),
                 'updated'
             );
-        }
-        else {
 
-            add_settings_error(
-                'mime-types',
-                'eml_mime_types_saved',
-                __('MIME Types settings saved.', 'enhanced-media-library'),
-                'updated'
-            );
-        }
+            remove_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes' );
+            remove_filter( 'mime_types', 'wpuxss_eml_mime_types' );
 
+            $allowed_mimes    = get_allowed_mime_types();
+            $input = array();
 
-        foreach ( $input as $type => $mime ) {
+            foreach ( wp_get_mime_types() as $ext => $type ) {
 
-            $sanitized_type = wpuxss_eml_sanitize_extension( $type );
-
-            if ( $sanitized_type !== $type ) {
-
-                $input[$sanitized_type] = $input[$type];
-                unset($input[$type]);
-                $type = $sanitized_type;
+                $input[$ext] = array(
+                    'mime'     => $type,
+                    'singular' => $type,
+                    'plural'   => $type,
+                    'filter'   => 0,
+                    'upload'   => isset($allowed_mimes[$ext]) ? 1 : 0
+                );
             }
 
-            $input[$type]['filter'] = isset( $mime['filter'] ) && !! $mime['filter'] ? 1 : 0;
-            $input[$type]['upload'] = isset( $mime['upload'] ) && !! $mime['upload'] ? 1 : 0;
+            return $input;
+        }
 
-            $input[$type]['mime'] = sanitize_mime_type($mime['mime']);
-            $input[$type]['singular'] = sanitize_text_field($mime['singular']);
-            $input[$type]['plural'] = sanitize_text_field($mime['plural']);
+
+        add_settings_error(
+            'mime-types',
+            'eml_mime_types_saved',
+            __('MIME Types settings saved.', 'enhanced-media-library'),
+            'updated'
+        );
+        
+
+        foreach ( $input as $ext => $type ) {
+
+            if ( wpuxss_eml_sanitize_extension( $ext ) !== $ext ) {
+
+                // just unset anything not appropriate as file extension
+                // @todo :: add error
+                unset($input[$ext]);
+                continue;
+            }
+
+            $input[$ext]['filter'] = isset( $type['filter'] ) && !! $type['filter'] ? 1 : 0;
+            $input[$ext]['upload'] = isset( $type['upload'] ) && !! $type['upload'] ? 1 : 0;
+
+            $input[$ext]['mime'] = sanitize_mime_type($type['mime']);
+            $input[$ext]['singular'] = sanitize_text_field($type['singular']);
+            $input[$ext]['plural'] = sanitize_text_field($type['plural']);
         }
 
         return $input;
@@ -90,6 +105,8 @@ if ( ! function_exists( 'wpuxss_eml_sanitize_extension' ) ) {
 
 /**
  *  wpuxss_eml_post_mime_types
+ * 
+ *  Mime types to show in a media library filter
  *
  *  @since    1.0
  *  @created  03/08/13
@@ -101,22 +118,17 @@ if ( ! function_exists( 'wpuxss_eml_post_mime_types' ) ) {
 
     function wpuxss_eml_post_mime_types( $post_mime_types ) {
 
-        $wpuxss_eml_mimes = get_option('wpuxss_eml_mimes');
+        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-        if ( ! empty( $wpuxss_eml_mimes ) ) {
+            if ( (bool) $type_array['filter'] ) {
 
-            foreach ( $wpuxss_eml_mimes as $extension => $mime ) {
+                $mime_type = sanitize_mime_type( $type_array['mime'] );
 
-                if ( (bool) $mime['filter'] ) {
-
-                    $mime_type = sanitize_mime_type( $mime['mime'] );
-
-                    $post_mime_types[$mime_type] = array(
-                        esc_html( $mime['plural'] ),
-                        'Manage ' . esc_html( $mime['plural'] ),
-                        _n_noop( esc_html( $mime['singular'] ) . ' <span class="count">(%s)</span>', esc_html( $mime['plural'] ) . ' <span class="count">(%s)</span>' )
-                    );
-                }
+                $post_mime_types[$mime_type] = array(
+                    esc_html( $type_array['plural'] ),
+                    'Manage ' . esc_html( $type_array['plural'] ),
+                    _n_noop( esc_html( $type_array['singular'] ) . ' <span class="count">(%s)</span>', esc_html( $type_array['plural'] ) . ' <span class="count">(%s)</span>' )
+                );
             }
         }
 
@@ -135,65 +147,26 @@ if ( ! function_exists( 'wpuxss_eml_post_mime_types' ) ) {
  *  @created  03/08/13
  */
 
-add_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes' );
+add_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes', 10, 2 );
 
 if ( ! function_exists( 'wpuxss_eml_upload_mimes' ) ) {
 
-    function wpuxss_eml_upload_mimes( $existing_mimes = array() ) {
+    function wpuxss_eml_upload_mimes( $types, $user ) {
 
-        $wpuxss_eml_mimes = get_option('wpuxss_eml_mimes');
+        if ( function_exists( 'current_user_can' ) ) {
+            $unfiltered_html = $user ? user_can( $user, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
+        }
 
-        if ( ! empty( $wpuxss_eml_mimes ) ) {
+        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-            foreach ( $wpuxss_eml_mimes as $extension => $mime ) {
+            $ext = wpuxss_eml_sanitize_extension( $ext );
 
-                $extension = wpuxss_eml_sanitize_extension( $extension );
-
-
-                if ( (bool) $mime['upload'] ) {
-                    $existing_mimes[$extension] = sanitize_mime_type( $mime['mime'] );
-                }
-                else {
-                    unset( $existing_mimes[$extension] );
-                }
+            // allow any mime type from settings
+            if ( (bool) $type_array['upload'] ) {
+                $types[$ext] = sanitize_mime_type( $type_array['mime'] );
             }
-        }
-
-        return $existing_mimes;
-    }
-}
-
-
-
-/**
- *  wpuxss_eml_check_filetype_and_ext
- *
- *  Allowed mime types
- *
- *  @since    2.8
- *  @created  10/2020
- */
-
-add_filter( 'wp_check_filetype_and_ext', 'wpuxss_eml_check_filetype_and_ext', 10, 5 );
-
-if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
-
-    function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $real_mime = false ) {
-
-        $wpuxss_eml_mimes = get_option('wpuxss_eml_mimes');
-
-        if ( empty( $wpuxss_eml_mimes ) ) {
-            return $types;
-        }
-        
-        foreach ( $wpuxss_eml_mimes as $extension => $mime ) {
-
-            if ( (bool) $mime['upload'] ) {
-            
-                if ( false !== strpos( $filename, '.'.$extension ) ) {
-                    $types['ext'] = wpuxss_eml_sanitize_extension( $extension );
-                    $types['type'] = sanitize_mime_type( $mime['mime'] );
-                }
+            else {
+                unset( $types[$ext] );
             }
         }
 
@@ -203,10 +176,11 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
 
 
 
+
 /**
  *  wpuxss_eml_mime_types
- *
- *  All mime Types
+ * 
+ *  All mime types
  *
  *  @since    1.0
  *  @created  03/08/13
@@ -216,23 +190,18 @@ add_filter( 'mime_types', 'wpuxss_eml_mime_types' );
 
 if ( ! function_exists( 'wpuxss_eml_mime_types' ) ) {
 
-    function wpuxss_eml_mime_types( $default_mimes ) {
+    function wpuxss_eml_mime_types( $types ) {
 
-        $new_mimes = array();
-        $wpuxss_eml_mimes = get_option( 'wpuxss_eml_mimes' );
+        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-        if ( false !== $wpuxss_eml_mimes ) {
+            $ext = wpuxss_eml_sanitize_extension( $ext );
 
-            foreach ( $wpuxss_eml_mimes as $extension => $mime ) {
-
-                $extension = wpuxss_eml_sanitize_extension( $extension );
-                $new_mimes[$extension] = sanitize_mime_type( $mime['mime'] );
+            if ( ! isset( $types[$ext] ) ) {
+                $types[$ext] = sanitize_mime_type( $type_array['mime'] );
             }
-
-            return $new_mimes;
         }
 
-        return $default_mimes;
+        return $types;
     }
 }
 

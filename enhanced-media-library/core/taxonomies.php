@@ -146,7 +146,10 @@ if ( ! function_exists( 'wpuxss_eml_lib_options_validate' ) ) {
 
         foreach ( (array)$input as $key => $option ) {
 
-            if ( 'media_orderby' === $key || 'media_order' === $key || 'grid_caption_type' === $key ) {
+            if (    'media_orderby' === $key || 
+                    'media_order' === $key || 
+                    'grid_caption_type' === $key
+                ) {
                 $input[$key] = sanitize_text_field( $option );
 
             }
@@ -155,10 +158,13 @@ if ( ! function_exists( 'wpuxss_eml_lib_options_validate' ) ) {
                 $input[$key] = array_values( array_intersect( $option, $allowed ) );
             }
             elseif ( 'search_in' === $key ) {
-                $allowed = array( 'titles', 'captions', 'descriptions', 'authors', 'taxonomies' );
+                $allowed = array( 'filenames', 'titles', 'captions', 'descriptions', 'authors', 'taxonomies' );
                 $input[$key] = array_values( array_intersect( $option, $allowed ) );
             }
-            elseif ( 'loads_per_page' === $key ) {
+            elseif ( 'loads_per_page' === $key || 
+                     'grid_sidebar_width' === $key || 
+                     'ideal_column_width' === $key
+                ) {
                 $input[$key] = (int) $option;
             }
             else {
@@ -695,19 +701,20 @@ if ( ! function_exists( 'wpuxss_eml_attachment_fields_to_edit' ) ) {
 
     function wpuxss_eml_attachment_fields_to_edit( $form_fields, $post ) {
 
+        global $pagenow;
+        
+
+        // a workaround to handle media taxonomies for js only
+        if ( 'post.php' === $pagenow ) {
+            return $form_fields;
+        }
+
         if ( ! function_exists( 'wp_terms_checklist' ) ) {
             return $form_fields;
         }
 
-        $wpuxss_eml_tax_options = get_option( 'wpuxss_eml_tax_options' );
-        
-        foreach( $form_fields as $field => $args ) {
 
-            // getting rid of any taxonomy in the attachment compat
-            if ( taxonomy_exists( $field ) ) {
-                unset( $form_fields[$field] );
-            }
-        } // foreach
+        $wpuxss_eml_tax_options = get_option( 'wpuxss_eml_tax_options' );
 
         foreach( get_taxonomies_for_attachments() as $taxonomy ) {
 
@@ -748,8 +755,10 @@ if ( ! function_exists( 'wpuxss_eml_attachment_fields_to_edit' ) ) {
             } // if
 
             $t['taxonomy'] = true;
+            // get rid of a current instance of the tax_field if exists
+            unset( $form_fields[$taxonomy] ); 
 
-            // re-order tax_field to the end
+            // re-order the tax_field to the end
             $form_fields = $form_fields + array( $taxonomy => $t );
         } // foreach
 

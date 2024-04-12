@@ -26,10 +26,6 @@ window.eml = window.eml || { l10n: {} };
         activate: media.controller.Library.prototype.activate
     };
 
-    _.extend( media.controller.Library.prototype.defaults, {
-        idealColumnWidth   : $( window ).width() < 640 ? 120 : 135
-    });
-
     _.extend( media.controller.Library.prototype, {
 
         activate: function() {
@@ -84,6 +80,28 @@ window.eml = window.eml || { l10n: {} };
                 selection.trigger( 'selection:single', selection.model, selection );
             }
         }
+    });
+
+
+
+    /**
+     * wp.media.controller.Library
+     *
+     * set idealColumnWidth for popups
+     */
+    _.extend( media.controller.Library.prototype.defaults, {
+        idealColumnWidth: eml.l10n.ideal_column_width || 170
+    });
+
+
+
+    /**
+     * wp.media.view.Attachments
+     *
+     * set idealColumnWidth
+     */
+    _.extend( media.view.Attachments.prototype.defaults, {
+        idealColumnWidth: $( window ).width() < 640 ? 135 : eml.l10n.ideal_column_width || 150
     });
 
 
@@ -613,18 +631,44 @@ window.eml = window.eml || { l10n: {} };
 
             original.AttachmentsBrowser.initialize.apply( this, arguments );
 
-            this.on( 'ready', this.fixLayout, this );
-            this.$window = $( window );
-            this.$window.on( 'resize', _.debounce( _.bind( this.fixLayout, this ), 15 ) );
 
-            if ( $('.notice-dismiss').length ) {
+            if ( ! this.controller.isModeActive( 'select' ) &&
+                 ! this.controller.isModeActive( 'eml-grid' ) ) {
+                return;
+            }
+
+
+            if ( this.controller.isModeActive( 'eml-grid' ) ) {
+
+                this.sidebar.$el.width( eml.l10n.grid_sidebar_width );
+                this.on( 'ready', this.fixLayout, this );
+
                 $( document ).on( 'click', '.notice-dismiss', _.debounce( _.bind( this.fixLayout, this), 250 ) );
             }
+
+
+            if ( this.controller.isModeActive( 'select' ) ) {
+
+                this.controller.on( 'open', this.fixLayout, this );
+
+                // acf compatibility
+                $( document ).on( 'click', '.acf-expand-details', _.bind( this.fixLayout, this ) );
+            }
+
+
+            this.$window = $( window );
+            this.$window.on( 'resize', _.debounce( _.bind( this.fixLayout, this ), 15 ) );
 
             this.controller.on( 'sidebar:on' , _.debounce( _.bind( this.scrollAttachmentIntoView, this, {block: "center"} ), 15 ) );
         },
 
         fixLayout: function() {
+
+            if ( ! this.controller.isModeActive( 'select' ) &&
+                 ! this.controller.isModeActive( 'eml-grid' ) ) {
+                return;
+            }
+
 
             var browserView = this,
                 attachments = browserView.attachmentsWrapper || browserView.attachments,
@@ -635,21 +679,19 @@ window.eml = window.eml || { l10n: {} };
                 messagesOuterHeight = 0;
 
 
+            this.sidebarWidth = $( window ).width() < 640 ? 0 : parseInt( this.sidebar.$el.outerWidth() );
+
+
             if ( $update_nag.length ) {
                 $update_nag.css( 'margin-left', 15 + 'px' );
                 browserView.$el.closest('.wrap').css( 'top', $update_nag.outerHeight() + 25 + 'px' );
             }
 
 
-            if ( ! this.controller.isModeActive( 'select' ) &&
-                 ! this.controller.isModeActive( 'eml-grid' ) ) {
-                return;
-            }
-
-
             if ( this.controller.isModeActive( 'select' ) ) {
 
                 attachments.$el.css( 'top', toolbar.$el.height() + 10 + 'px' );
+                attachments.$el.css( 'right', this.sidebarWidth.toString() + 'px' );
                 browserView.uploader.$el.css( 'top', toolbar.$el.height() + 10 + 'px' );
                 browserView.$el.find('.eml-loader').css( 'top', toolbar.$el.height() + 10 + 'px' );
 
@@ -1036,13 +1078,15 @@ window.eml = window.eml || { l10n: {} };
         toggleSidebar: function() {
 
             var selection = this.controller.state().get( 'selection' ),
-                attachments = this.attachmentsWrapper || this.attachments;
+                attachments = this.attachmentsWrapper || this.attachments,
+                shift = this.sidebarWidth;
 
 
             if ( selection.length ) {
                 this.sidebar.$el.removeClass( 'hidden' );
-                attachments.$el.css( 'right', '300px' );
-                this.uploader.$el.css( 'right', '310px' );
+                attachments.$el.css( 'right', shift.toString() + 'px' );
+                shift = shift + 10;
+                this.uploader.$el.css( 'right', shift.toString() + 'px' );
                 this.controller.trigger( 'sidebar:on' );
             }
             else {
@@ -1166,34 +1210,6 @@ window.eml = window.eml || { l10n: {} };
                 this.attachmentsNoResults.$el.html( l10n.noMedia );
 
                 this.views.add( this.attachmentsNoResults );
-            }
-        }
-    });
-
-
-
-    /**
-     * wp.media.view.MediaFrame.Post
-     *
-     */
-    original.MediaFrame = {
-
-        Post: {
-            activate: media.view.MediaFrame.Post.prototype.activate
-        }
-    };
-
-    _.extend( media.view.MediaFrame.Post.prototype, {
-
-        activate: function() {
-
-            var content = this.content.get();
-
-            original.MediaFrame.Post.activate.apply( this, arguments );
-
-            this.on( 'open', content.fixLayout, content );
-            if ( typeof acf !== 'undefined' && $('.acf-expand-details').length ) {
-                $( document ).on( 'click', '.acf-expand-details', _.debounce( _.bind( content.fixLayout, content ), 250 ) );
             }
         }
     });

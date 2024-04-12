@@ -203,7 +203,7 @@ window.eml = window.eml || { l10n: {} };
 
 
     // on taxonomy form submit
-    $('#wpuxss-eml-form-taxonomies').submit(function( event ) {
+    $('#wpuxss-eml-form-taxonomies').on( 'submit', function( event ) {
 
         var built_in = [ 'link_category', 'post_format' ],
             current_taxonomy,

@@ -227,18 +227,10 @@ body.upload-php.eml-grid #wpbody-content > #screen-meta {
 .media-frame.mode-eml-grid .attachments-browser .uploader-inline {
     top: 0;
 }
-.attachments-browser:not(.has-load-more) .attachments {
-    position: static;
-}
-.attachments-browser.has-load-more .attachments-wrapper,
-.attachments-browser:not(.has-load-more) .attachments-wrapper {
-    position: absolute;
-    top: 72px;
-    left: 0;
-    right: 300px;
-    bottom: 0;
-    overflow: auto;
-    outline: none;
+.attachments-browser:not(.has-load-more) .attachments, 
+.attachments-browser.has-load-more .attachments-wrapper, 
+.attachments-browser .uploader-inline {
+    right: 0;
 }
 .media-frame.mode-eml-grid .attachments-browser .attachments-wrapper,
 .media-frame.mode-eml-grid .attachments-browser .attachments {

@@ -23,7 +23,8 @@ if ( ! function_exists( 'wpuxss_eml_print_media_templates' ) ) {
             <#
             show_caption = parseInt(wpuxss_eml_media_grid_l10n.grid_show_caption);
             caption_type = wpuxss_eml_media_grid_l10n.grid_caption_type;
-            caption = data[caption_type].length <= 15 ? data[caption_type] : data[caption_type].substring(0, 15) + '...';
+            limit = Math.round( parseInt(wpuxss_eml_media_grid_l10n.ideal_column_width) / 5 );
+            caption = 'filename' == caption_type || data[caption_type].length <= limit ? data[caption_type] : data[caption_type].substring(0, limit) + '...';
             non_image_caption = ( 'image' !== data.type && caption ) ? caption : data.filename;
             #>
 

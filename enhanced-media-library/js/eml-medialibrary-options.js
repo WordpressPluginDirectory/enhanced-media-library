@@ -1,4 +1,4 @@
-( function( $ ) {
+  ( function( $ ) {
 
     var orderValue;
 
@@ -7,8 +7,8 @@
     $( document ).ready( function() {
 
         orderValue = $('#wpuxss_eml_lib_options_media_order').val();
-        $('#wpuxss_eml_lib_options_media_orderby').change();
-        $('#wpuxss_eml_lib_options_grid_show_caption').change();
+        $('#wpuxss_eml_lib_options_media_orderby').trigger( 'change' );
+        $('#wpuxss_eml_lib_options_grid_show_caption').trigger( 'change' );
     });
 
 
@@ -38,6 +38,14 @@
 
     $( document ).on( 'click', 'input[readonly], .disabled .submit input.button', function( event ) {
         event.preventDefault();
+    });
+
+
+    $( document ).on( 'change', '#wpuxss_eml_lib_options_search_in input[type=checkbox]', function( event ) {
+
+        if ( ! $( '#wpuxss_eml_lib_options_search_in input:checked' ).length ) {
+            $( event.target ).prop( 'checked', true );
+        }
     });
 
 })( jQuery );
