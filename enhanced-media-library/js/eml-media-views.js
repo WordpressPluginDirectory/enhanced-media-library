@@ -1216,6 +1216,27 @@ window.eml = window.eml || { l10n: {} };
 
 
 
+    /**
+     * wp.media.view.Search
+     *
+     */
+    _.extend( media.view.Search.prototype, {
+
+        search: _.debounce( function( event ) {
+            var searchTerm = event.target.value.trim();
+
+            // Trigger the search only after 2 ASCII characters.
+            if ( searchTerm && searchTerm.length > 1 ) {
+                this.model.set( 'search', searchTerm );
+            } else {
+                this.model.unset( 'search' );
+            }
+        }, 1000 ) // more time to type a query for a user
+                  // no need to ask every 500 mls
+    });
+
+
+
     $( document ).ready( function() {
 
         // TODO: find a better place for this

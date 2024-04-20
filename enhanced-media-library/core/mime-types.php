@@ -144,6 +144,9 @@ if ( ! function_exists( 'wpuxss_eml_post_mime_types' ) ) {
  *  Allowed mime types
  *
  *  @since    1.0
+ *  @since    2.8.10 modified
+ *  @since    2.8.11 re-thought
+ * 
  *  @created  03/08/13
  */
 
@@ -152,10 +155,6 @@ add_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes', 10, 2 );
 if ( ! function_exists( 'wpuxss_eml_upload_mimes' ) ) {
 
     function wpuxss_eml_upload_mimes( $types, $user ) {
-
-        if ( function_exists( 'current_user_can' ) ) {
-            $unfiltered_html = $user ? user_can( $user, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
-        }
 
         foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
@@ -168,6 +167,16 @@ if ( ! function_exists( 'wpuxss_eml_upload_mimes' ) ) {
             else {
                 unset( $types[$ext] );
             }
+        }
+
+        // repeat the check from the core after adding new types
+        unset( $types['swf'], $types['exe'] );
+        if ( function_exists( 'current_user_can' ) ) {
+            $unfiltered = $user ? user_can( $user, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
+        }
+
+        if ( empty( $unfiltered ) ) {
+            unset( $types['htm|html'], $types['js'] );
         }
 
         return $types;
@@ -200,6 +209,81 @@ if ( ! function_exists( 'wpuxss_eml_mime_types' ) ) {
                 $types[$ext] = sanitize_mime_type( $type_array['mime'] );
             }
         }
+
+        return $types;
+    }
+}
+
+
+
+/**
+ *  wpuxss_eml_check_filetype_and_ext
+ *
+ *  Vetting allowed mime types
+ *
+ *  @since    2.8
+ *  @since    2.8.10 removed
+ *  @since    2.8.11 completely re-thought to allow font types
+ *                   other file types will be added gradually
+ * 
+ *  @created  2020/10
+ */
+
+add_filter( 'wp_check_filetype_and_ext', 'wpuxss_eml_check_filetype_and_ext', 10, 5 );
+
+if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
+
+    function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $real_mime = false ) {
+
+        if ( $types['type'] ) {
+            return $types;
+        }
+
+
+        $wp_filetype = wp_check_filetype( $filename, $mimes );
+        $ext         = $wp_filetype['ext'];
+        $type        = $wp_filetype['type'];
+
+
+        if ( $real_mime && str_starts_with( $type, 'font/' ) ) {
+
+            if ( ! in_array(
+                $real_mime,
+                array(
+                    'font/ttf',
+                    'font/sfnt',
+                    'font/otf',
+                    'application/vnd.ms-opentype',
+                    'font/woff',
+                    'font/woff2',
+                ),
+                true
+            )
+            ) {
+                $type = false;
+                $ext  = false;
+            }
+        } else {
+            /*
+             * Everything else's assumed to be dangerous because it initially
+             * came from wp_check_filetype_and_ext() with the mime type mismatch
+             */
+            $type = false;
+            $ext  = false;
+        }
+
+        // The mime type must be allowed.
+        if ( $type ) {
+            $allowed = get_allowed_mime_types();
+
+            if ( ! in_array( $type, $allowed, true ) ) {
+                $type = false;
+                $ext  = false;
+            }
+        }
+
+        $types['type'] = $type;
+        $types['ext'] = $ext;
 
         return $types;
     }

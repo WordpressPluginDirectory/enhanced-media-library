@@ -4,7 +4,7 @@ Tags: media library, media folders, media taxonomies, media gallery, mime types
 Requires at least: 6.0
 Tested up to: 6.5.2
 Requires PHP: 5.6
-Stable tag: 2.8.10
+Stable tag: 2.8.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,8 +14,7 @@ This plugin would be handy for those who need to manage a lot of media files.
 
 **Handy for those who need to manage a lot of media files.**
 
-[SUPPORT](https://wpuxsolutions.com/support) | [DOCUMENTATION](https://wpuxsolutions.com/documents/enhanced-media-library) | [FAQs](https://wpuxsolutions.com/documents/enhanced-media-library/faqs) | [PREMIUM FEATURES](https://wpuxsolutions.com/plugins/enhanced-media-library-pro)
-
+[Known Issues / SUPPORT](https://wpuxsolutions.com/support) | [DOCs](https://wpuxsolutions.com/documents/enhanced-media-library) | [FAQs](https://wpuxsolutions.com/documents/enhanced-media-library/faqs) | [PREMIUM FEATURES](https://wpuxsolutions.com/plugins/enhanced-media-library-pro)
 
 ### Categorize by Anything! ###
 
@@ -181,6 +180,29 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 
 ## Changelog ##
 
+### 2.8.11 ###
+*Release Date - April 19, 2024*
+
+= SECURITY UPDATE =
+* A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
+
+= Improvements =
+* Database queries for taxonomies improved
+* A mechanism for vetting allowed mime types added
+
+= Bugfixes =
+* Deprecated notices for author filter fixed
+* Issue with uploading font mime types fixed (Report other mime types you experience issues uploading, please)
+* PRO only: Search issue fixed and the mechanism improved to ensure compatibility with other plugins
+
+= Thank you! =
+For being EML users for so many years.
+* *This update has been issued in Ukraine under everyday missile attacks.*
+* *This morning downtown of my city Dnipro was attacked. 9 dead (3 kids), 25 injured at the moment. Dozens of residential buildings and hundreds of civilian vehicles damaged.*
+* *Please do not buy into ruzzian lies and propaganda. This aggression is unprovoked, illegal, and unfair. The people of Ukraine have all the right to live peacefully without ungrounded ruzzian claims and crimes committed.* 
+* *Support Ukraine. We are badly in need of weapons for defense.*
+
+
 ### 2.8.10 ###
 *Release Date - April 11, 2024*
 
@@ -200,12 +222,6 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 = Bugfixes =
 * Duplicate listings when editing a single image edit in the list mode fixed
 * WP excess utility taxonomies hidden in the settings
-
-= Thank you! =
-For being EML users for so many years.
-* *This update has been issued in Ukraine under everyday missile attacks.*
-* *Please do not buy into ruzzian lies and propaganda. This aggression is unprovoked, illegal, and unfair. The people of Ukraine have all the right to live peacefully without ungrounded ruzzian claims and crimes committed.* 
-* *Support Ukraine. We are badly in need of weapons for defense.*
 
 
 ### 2.8.9 ###

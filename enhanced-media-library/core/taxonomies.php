@@ -255,19 +255,12 @@ if ( ! function_exists( 'wpuxss_eml_ajax_query_attachments_args' ) ) {
 
             if ( $uncategorized ) {
 
-                $terms = get_terms( $taxonomy_name, array( 'fields' => 'ids', 'get' => 'all' ) );
+                $tax_query[] = array(
+                    'taxonomy' => $taxonomy_name,
+                    'operator' => 'NOT EXISTS'
+                );
 
-                if ( ! empty( $terms ) ) {
-
-                    $tax_query[] = array(
-                        'taxonomy' => $taxonomy_name,
-                        'field' => 'term_id',
-                        'terms' => $terms,
-                        'operator' => 'NOT IN'
-                    );
-
-                    unset( $query['uncategorized'] );
-                }
+                unset( $query['uncategorized'] );
             }
             else {
 
@@ -284,32 +277,20 @@ if ( ! function_exists( 'wpuxss_eml_ajax_query_attachments_args' ) ) {
                             'include_children' => (bool) $wpuxss_eml_lib_options['include_children']
                         );
                     }
-                    elseif ( 'not_in' === $query[$taxonomy_name] ) {
+                    elseif ( 'in' === $query[$taxonomy_name] || 'not_in' === $query[$taxonomy_name] ) {
 
-                        $terms = get_terms( $taxonomy_name, array('fields'=>'ids','get'=>'all') );
-
-                        $tax_query[] = array(
-                            'taxonomy' => $taxonomy_name,
-                            'field' => 'term_id',
-                            'terms' => $terms,
-                            'operator' => 'NOT IN',
-                        );
-                    }
-                    elseif ( 'in' === $query[$taxonomy_name] ) {
-
-                        $terms = get_terms( $taxonomy_name, array('fields'=>'ids','get'=>'all') );
+                        $operator = 'in' === $query[$taxonomy_name] ? 'EXISTS' : 'NOT EXISTS';
 
                         $tax_query[] = array(
                             'taxonomy' => $taxonomy_name,
-                            'field' => 'term_id',
-                            'terms' => $terms,
-                            'operator' => 'IN',
+                            'operator' => $operator
                         );
                     }
 
                     unset( $query[$taxonomy_name] );
                 }
             }
+
         } // endforeach
 
         if ( ! empty( $tax_query ) ) {
@@ -365,7 +346,7 @@ if ( ! function_exists( 'wpuxss_eml_restrict_manage_posts' ) ) {
                     'show_option_all'         => __( 'All Authors', 'enhanced-media-library' ),
                     'name'                    => 'author',
                     'class'                   => 'attachment-filters',
-                    'who'                     => 'authors',
+                    'capability'              => 'upload_files',
                     'hide_if_only_one_author' => true
                 )
             );
@@ -627,13 +608,9 @@ if ( ! function_exists( 'wpuxss_eml_backend_parse_tax_query' ) ) {
             }
             elseif ( $uncategorized ) {
 
-                $terms = get_terms( $taxonomy, array('fields'=>'ids','get'=>'all') );
-
                 $tax_query[] = array(
                     'taxonomy' => $taxonomy,
-                    'field' => 'term_id',
-                    'terms' => $terms,
-                    'operator' => 'NOT IN'
+                    'operator' => 'NOT EXISTS'
                 );
 
                 if ( isset( $query->query[$taxonomy] ) ) unset( $query->query[$taxonomy] );
@@ -652,26 +629,13 @@ if ( ! function_exists( 'wpuxss_eml_backend_parse_tax_query' ) ) {
                             'include_children' => (bool) $wpuxss_eml_lib_options['include_children']
                         );
                     }
-                    elseif ( 'not_in' === $query->query[$taxonomy] ) {
+                    elseif ( 'in' === $query->query[$taxonomy] || 'not_in' === $query->query[$taxonomy] ) {
 
-                        $terms = get_terms( $taxonomy, array('fields'=>'ids','get'=>'all') );
-
-                        $tax_query[] = array(
-                            'taxonomy' => $taxonomy,
-                            'field' => 'term_id',
-                            'terms' => $terms,
-                            'operator' => 'NOT IN',
-                        );
-                    }
-                    elseif ( 'in' === $query->query[$taxonomy] ) {
-
-                        $terms = get_terms( $taxonomy, array('fields'=>'ids','get'=>'all') );
+                        $operator = 'in' === $query[$taxonomy_name] ? 'EXISTS' : 'NOT EXISTS';
 
                         $tax_query[] = array(
                             'taxonomy' => $taxonomy,
-                            'field' => 'term_id',
-                            'terms' => $terms,
-                            'operator' => 'IN',
+                            'operator' => $operator
                         );
                     }
                 }

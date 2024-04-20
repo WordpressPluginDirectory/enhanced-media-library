@@ -41,9 +41,9 @@
     });
 
 
-    $( document ).on( 'change', '#wpuxss_eml_lib_options_search_in input[type=checkbox]', function( event ) {
+    $( document ).on( 'change', '#wpuxss_eml_lib_options_search_in input[type=checkbox].search_columns', function( event ) {
 
-        if ( ! $( '#wpuxss_eml_lib_options_search_in input:checked' ).length ) {
+        if ( ! $( '#wpuxss_eml_lib_options_search_in input.search_columns:checked' ).length ) {
             $( event.target ).prop( 'checked', true );
         }
     });

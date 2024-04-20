@@ -194,6 +194,15 @@ a.eml-pro {
 	}
 }
 
+.eml-options #poststuff h2 {
+    font-size: 23px;
+    font-weight: 400;
+}
+
+.eml-options p.description {
+    font-style: italic;
+}
+
 
 
 
@@ -349,11 +358,6 @@ a.eml-pro {
     width: 70%;
 }
 
-.eml-options #poststuff h2 {
-    font-size: 23px;
-    font-weight: 400;
-}
-
 .eml-button-synchronize-terms.disabled {
     pointer-events: none;
     cursor: default;
@@ -440,7 +444,6 @@ a.eml-pro {
     border-left: solid 4px #50b03a;
 }
 .eml-admin-notice.notice.notice-news:before {
-    content: '\f534';
     color: #50b03a;
 }
 
@@ -455,6 +458,26 @@ a.eml-pro {
     border-color: #41902f;
 }
 
+.eml-admin-notice.notice.notice-issue {
+    border-color: #c7b2e0;  
+    border-left: solid 4px #9d60e3;
+}
+.eml-admin-notice.notice.notice-issue:before {
+    color: #9d60e3;
+}
+
+.eml-admin-notice.notice.notice-issue .button {
+    background-color: #9d60e3;
+    border-color: #9d60e3;
+}
+.eml-admin-notice.notice.notice-issue .button:hover,  
+.eml-admin-notice.notice.notice-issue .button:focus,
+.eml-admin-notice.notice.notice-issue .button:active {
+    background-color: #8a41de;
+    border-color: #8a41de;
+}
+/*00a4df*/
+
 .eml-admin-notice.notice.notice-warning {
     background-color: #fff;
     border-color: #deb6b6;  
@@ -462,7 +485,6 @@ a.eml-pro {
     border-left: solid 4px #ff0000;
 }
 .eml-admin-notice.notice.notice-warning:before {
-    content: '\f534';
     color: #ff0000;
 }
 

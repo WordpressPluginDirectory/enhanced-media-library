@@ -1908,10 +1908,14 @@ if ( ! function_exists( 'wpuxss_eml_print_media_library_options' ) ) {
                                                 <fieldset id="wpuxss_eml_lib_options_search_in">
                                                     <legend class="screen-reader-text"><span><?php _e('Enable search in', 'enhanced-media-library'); ?></span></legend>
                                                     <input name="wpuxss_eml_lib_options[search_in][]" type="hidden" value="none" />
+                                                    
+                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="titles" class="search_columns" <?php echo in_array('titles', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Titles','enhanced-media-library'); ?></label><br />
+                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="captions" class="search_columns" <?php echo in_array('captions', $wpuxss_eml_lib_options['search_in']) ? 'checked' : '';  echo $disabled; ?> /> <?php _e('Captions','enhanced-media-library'); ?></label><br />
+                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="descriptions" class="search_columns" <?php echo in_array('descriptions', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Descriptions','enhanced-media-library'); ?></label>
+                                                    <p class="description"><?php _e('One of the three above must be ON due to WP core limitations.','enhanced-media-library'); ?></p>
+                                                    <br />
+
                                                     <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="filenames" <?php echo in_array('filenames', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Filenames','enhanced-media-library'); ?></label><br />
-                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="titles" <?php echo in_array('titles', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Titles','enhanced-media-library'); ?></label><br />
-                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="captions" <?php echo in_array('captions', $wpuxss_eml_lib_options['search_in']) ? 'checked' : '';  echo $disabled; ?> /> <?php _e('Captions','enhanced-media-library'); ?></label><br />
-                                                    <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="descriptions" <?php echo in_array('descriptions', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Descriptions','enhanced-media-library'); ?></label><br />
 
                                                     <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="authors" <?php echo in_array('authors', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Authors','enhanced-media-library'); ?></label><br />
                                                     <label><input name="wpuxss_eml_lib_options[search_in][]" type="checkbox" value="taxonomies" <?php echo in_array('taxonomies', $wpuxss_eml_lib_options['search_in']) ? 'checked' : ''; echo $disabled; ?> /> <?php _e('Media Taxonomies','enhanced-media-library'); ?></label>
@@ -2508,23 +2512,21 @@ if ( ! function_exists( 'wpuxss_eml_print_mimetypes_options' ) ) {
             </h1>
 
             <?php
-            $warning = sprintf( esc_html__( 'WordPress %1$scommon role restrictions%2$s apply to the allowed MIME Types %1$sto avoid security issues%2$s. Advanced role management is coming.', 'enhanced-media-library' ),
+            $warning = sprintf( 
+                /* translators: %s: html <strong> and <br> tags to emphaseize some points. */
+                esc_html__( 'WordPress %1$scommon role restrictions%2$s apply to the allowed MIME Types %1$sto avoid security issues%2$s. Advanced role management is coming.%3$s If you experience an issue with uploading file types report it, please.', 'enhanced-media-library' ),
                 '<strong>',
-                '</strong>'
+                '</strong>',
+                '<br />'
             );
+            $w_link = __( 'Report a filetype', 'enhanced-media-library' );
             printf(
                 '<div class="notice notice-news eml-admin-notice dashicons-before">
                     <p>%1$s</p>
+                    <a href="https://wpuxsolutions.com/support" target="_blank" class="button button-primary">%2$s</a>
                 </div>',
-                wp_kses(
-                    $warning,
-                    array(
-                        'p'      => array(),
-                        'br'     => array(),
-                        'em'     => array(),
-                        'strong' => array()
-                    )
-                )
+                $warning,
+                $w_link
             );
             ?>
 
@@ -2786,6 +2788,7 @@ if ( ! function_exists( 'wpuxss_eml_maybe_new_notice' ) ) {
              $period > ( time() - $checked ) ) {
             return;
         }
+
 
         $url = wpuxss_eml_get_notice_url();
 
