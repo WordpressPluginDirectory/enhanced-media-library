@@ -245,6 +245,7 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
         $type        = $wp_filetype['type'];
 
 
+        // @todo :: re-think this
         if ( $real_mime && str_starts_with( $type, 'font/' ) ) {
 
             if ( ! in_array(
@@ -256,6 +257,7 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
                     'application/vnd.ms-opentype',
                     'font/woff',
                     'font/woff2',
+                    'application/octet-stream'     // @since 2.8.12
                 ),
                 true
             )
@@ -263,6 +265,7 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
                 $type = false;
                 $ext  = false;
             }
+            
         } else {
             /*
              * Everything else's assumed to be dangerous because it initially

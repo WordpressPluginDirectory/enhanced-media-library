@@ -279,7 +279,7 @@ if ( ! function_exists( 'wpuxss_eml_ajax_query_attachments_args' ) ) {
                     }
                     elseif ( 'in' === $query[$taxonomy_name] || 'not_in' === $query[$taxonomy_name] ) {
 
-                        $operator = 'in' === $query[$taxonomy_name] ? 'EXISTS' : 'NOT EXISTS';
+                        $operator = ( 'in' === $query[$taxonomy_name] ) ? 'EXISTS' : 'NOT EXISTS';
 
                         $tax_query[] = array(
                             'taxonomy' => $taxonomy_name,
@@ -613,8 +613,8 @@ if ( ! function_exists( 'wpuxss_eml_backend_parse_tax_query' ) ) {
                     'operator' => 'NOT EXISTS'
                 );
 
-                if ( isset( $query->query[$taxonomy] ) ) unset( $query->query[$taxonomy] );
-                if ( isset( $query->query_vars[$taxonomy] ) ) unset( $query->query_vars[$taxonomy] );
+                unset( $query->query[$taxonomy] );
+                unset( $query->query_vars[$taxonomy] );
             }
             else {
 
@@ -631,7 +631,7 @@ if ( ! function_exists( 'wpuxss_eml_backend_parse_tax_query' ) ) {
                     }
                     elseif ( 'in' === $query->query[$taxonomy] || 'not_in' === $query->query[$taxonomy] ) {
 
-                        $operator = 'in' === $query[$taxonomy_name] ? 'EXISTS' : 'NOT EXISTS';
+                        $operator = ( 'in' === $query->query[$taxonomy] ) ? 'EXISTS' : 'NOT EXISTS';
 
                         $tax_query[] = array(
                             'taxonomy' => $taxonomy,
