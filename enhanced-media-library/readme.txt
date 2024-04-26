@@ -4,7 +4,7 @@ Tags: media library, media folders, media taxonomies, media gallery, mime types
 Requires at least: 6.0
 Tested up to: 6.5.2
 Requires PHP: 5.6
-Stable tag: 2.8.12
+Stable tag: 2.8.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -180,6 +180,22 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 
 ## Changelog ##
 
+### 2.8.13 ###
+*Release Date - April 26, 2024*
+
+= SECURITY UPDATE =
+* A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
+
+= Bugfixes =
+* A bug since v2.8.10 with the right sidebar covering media library files when `Infinite scrolling` option is enabled fixed
+
+= Thank you! =
+For being EML users for so many years.
+* *This update has been issued in Ukraine under everyday missile attacks.*
+* *Please do not buy into ruzzian lies and propaganda. This aggression is unprovoked, illegal, and unfair. The people of Ukraine have all the right to live peacefully without ungrounded ruzzian claims and crimes committed.* 
+* *Support Ukraine. We are badly in need of weapons for defense.*
+
+
 ### 2.8.12 ###
 *Release Date - April 23, 2024*
 
@@ -188,12 +204,6 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 
 = Bugfixes =
 * A critical error bug of v2.8.11 with filtering by media taxonomies in the media library List View fixed.
-
-= Thank you! =
-For being EML users for so many years.
-* *This update has been issued in Ukraine under everyday missile attacks.*
-* *Please do not buy into ruzzian lies and propaganda. This aggression is unprovoked, illegal, and unfair. The people of Ukraine have all the right to live peacefully without ungrounded ruzzian claims and crimes committed.* 
-* *Support Ukraine. We are badly in need of weapons for defense.*
 
 
 ### 2.8.11 ###
