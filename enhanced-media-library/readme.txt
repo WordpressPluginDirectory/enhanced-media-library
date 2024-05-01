@@ -4,7 +4,7 @@ Tags: media library, media folders, media taxonomies, media gallery, mime types
 Requires at least: 6.0
 Tested up to: 6.5.2
 Requires PHP: 5.6
-Stable tag: 2.8.13
+Stable tag: 2.8.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ This plugin would be handy for those who need to manage a lot of media files.
 
 **Handy for those who need to manage a lot of media files.**
 
-[Known Issues / Support](https://wpuxsolutions.com/support) | [Changelog](https://wpuxsolutions.com/documents/enhanced-media-library/changelog) | [DOCs](https://wpuxsolutions.com/documents/enhanced-media-library) | [FAQs](https://wpuxsolutions.com/documents/enhanced-media-library/faqs) | [Premium Features](https://wpuxsolutions.com/plugins/enhanced-media-library-pro)
+[Known Issues / Support](https://wpuxsolutions.com/support) | [Changelog](https://wpuxsolutions.com/documents/enhanced-media-library/changelog) | [DOCs](https://wpuxsolutions.com/documents/enhanced-media-library) | [FAQs](https://wpuxsolutions.com/documents/enhanced-media-library/faqs-2) | [Premium Features](https://wpuxsolutions.com/plugins/enhanced-media-library-pro)
 
 ### Categorize by Anything! ###
 
@@ -180,14 +180,15 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 
 ## Changelog ##
 
-### 2.8.13 ###
-*Release Date - April 26, 2024*
+### 2.8.14 ###
+*Release Date - April 30, 2024*
 
 = SECURITY UPDATE =
 * A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
 
-= Bugfixes =
-* A bug since v2.8.10 with the right sidebar covering media library files when `Infinite scrolling` option is enabled fixed
+= Improvements =
+* Divi Builder compatibility ensured on uploading font files
+*Note: Font files are allowed for upload with Divi Builder even if you haven't added them with the EML settings because Divi adds its own allowed file types.*
 
 = Thank you! =
 For being EML users for so many years.
@@ -196,21 +197,22 @@ For being EML users for so many years.
 * *Support Ukraine. We are badly in need of weapons for defense.*
 
 
+### 2.8.13 ###
+*Release Date - April 26, 2024*
+
+= Bugfixes =
+* A bug since v2.8.10 with the right sidebar covering media library files when `Infinite scrolling` option is enabled fixed
+
+
 ### 2.8.12 ###
 *Release Date - April 23, 2024*
 
-= SECURITY UPDATE =
-* A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
-
 = Bugfixes =
-* A critical error bug of v2.8.11 with filtering by media taxonomies in the media library List View fixed.
+* A critical error bug of v2.8.11 with filtering by media taxonomies in the media library List View fixed
 
 
 ### 2.8.11 ###
 *Release Date - April 19, 2024*
-
-= SECURITY UPDATE =
-* A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
 
 = Improvements =
 * Database queries for taxonomies improved
@@ -224,9 +226,6 @@ For being EML users for so many years.
 
 ### 2.8.10 ###
 *Release Date - April 11, 2024*
-
-= SECURITY UPDATE =
-* A security issue related to MIME types upload fixed. Please update to the latest version on all your websites.
 
 = Improvements =
 * Plugin admin menu items order and compatibility improved

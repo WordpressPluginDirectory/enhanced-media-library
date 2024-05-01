@@ -223,8 +223,9 @@ if ( ! function_exists( 'wpuxss_eml_mime_types' ) ) {
  *
  *  @since    2.8
  *  @since    2.8.10 removed
- *  @since    2.8.11 completely re-thought to allow font types
+ *  @since    2.8.11 completely re-thought to allow font types,
  *                   other file types will be added gradually
+ *  @since    2.8.14 compatibility with Divi Builder added
  * 
  *  @created  2020/10
  */
@@ -235,7 +236,11 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
 
     function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $real_mime = false ) {
 
-        if ( $types['type'] ) {
+        /*
+         * If the type has been set by WP - there is nothing to do
+         * If there is no real mime - there is nothing to do
+         */
+        if ( ! isset( $types['type'] ) || $types['type'] || empty( $real_mime ) ) {
             return $types;
         }
 
@@ -245,27 +250,34 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
         $type        = $wp_filetype['type'];
 
 
-        // @todo :: re-think this
-        if ( $real_mime && str_starts_with( $type, 'font/' ) ) {
+        // @todo :: re-think all the following
+        $font_types  = array(
 
-            if ( ! in_array(
-                $real_mime,
-                array(
-                    'font/ttf',
-                    'font/sfnt',
-                    'font/otf',
-                    'application/vnd.ms-opentype',
-                    'font/woff',
-                    'font/woff2',
-                    'application/octet-stream'     // @since 2.8.12
-                ),
-                true
-            )
-            ) {
+            // ttf
+            'font/ttf',
+            'font/sfnt',
+            'application/x-font-ttf',       // @since 2.8.14
+
+            // otf
+            'font/otf',
+            'application/vnd.ms-opentype',
+            'application/x-font-opentype',  // @since 2.8.14
+
+            // woff
+            'font/woff',
+            'font/woff2',
+            'application/font-woff',        // @since 2.8.14
+            'application/font-woff2',       // @since 2.8.14
+
+            // general
+            'application/octet-stream',     // @since 2.8.12
+        );
+
+        if ( in_array( $real_mime, $font_types, true ) ) {
+            if ( ! in_array( substr( $type, 0, strcspn( $type, '/' ) ), array( 'application', 'font' ), true ) ) {
                 $type = false;
                 $ext  = false;
             }
-            
         } else {
             /*
              * Everything else's assumed to be dangerous because it initially
@@ -279,6 +291,12 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
         if ( $type ) {
             $allowed = get_allowed_mime_types();
 
+            // @todo :: consider this check
+            // Either passed or real mime type must be allowed for upload
+            // if (    ! in_array( $type, $allowed, true ) && 
+            //         ! in_array( $real_mime, $allowed, true ) 
+            // ) {
+
             if ( ! in_array( $type, $allowed, true ) ) {
                 $type = false;
                 $ext  = false;
@@ -291,6 +309,17 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
         return $types;
     }
 }
+
+
+
+
+// @todo ::
+// add_filter( 'wp_handle_upload_overrides', 'wpuxss_eml_handle_upload_overrides', 10, 2 );
+
+// function wpuxss_eml_handle_upload_overrides( $overrides, $file ) {
+//     return $overrides;
+// }
+
 
 
 
