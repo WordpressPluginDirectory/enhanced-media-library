@@ -205,7 +205,7 @@ window.eml = window.eml || { l10n: {} };
     // on taxonomy form submit
     $('#wpuxss-eml-form-taxonomies').on( 'submit', function( event ) {
 
-        var built_in = [ 'link_category', 'post_format' ],
+        var built_in = [ 'link_category', 'post_format', 'wp_theme', 'wp_pattern_category', 'wp_template_part_area' ],
             current_taxonomy,
             singular_name,
             plural_name,
@@ -380,7 +380,7 @@ window.eml = window.eml || { l10n: {} };
 
     function setTaxonomyID( id, taxonomy_clone_box ) {
 
-        var built_in = [ 'link_category', 'post_format' ];
+        var built_in = [ 'link_category', 'post_format', 'wp_theme', 'wp_pattern_category', 'wp_template_part_area' ];
 
 
         taxonomy_clone_box.attr( 'id', id );

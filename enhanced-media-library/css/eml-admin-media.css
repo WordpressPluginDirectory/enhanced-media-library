@@ -227,18 +227,22 @@ body.upload-php.eml-grid #wpbody-content > #screen-meta {
 .media-frame.mode-eml-grid .attachments-browser .uploader-inline {
     top: 0;
 }
-/* a fix for infinite scrolling */
-.attachments-browser:not(.has-load-more) .attachments,
-.attachments-browser .attachments-wrapper,
-.attachments-browser .uploader-inline {
+
+/* a fix for infinite scroll */
+.attachments-browser:not(.has-load-more) .attachments {
+    position: static;
+}
+.attachments-browser.has-load-more .attachments-wrapper,
+.attachments-browser:not(.has-load-more) .attachments-wrapper {
     position: absolute;
     top: 72px;
-    right: 0;
+    right: 300px;
     left: 0;
     bottom: 0;
     overflow: auto;
     outline: none;
 }
+
 .media-frame.mode-eml-grid .attachments-browser .attachments-wrapper,
 .media-frame.mode-eml-grid .attachments-browser .attachments {
     -webkit-transition: all 0.2s;
@@ -408,6 +412,38 @@ body.eml-media-css .attachment-details {
     margin: 10px 0 0;
 }
 
+.media-sidebar h3, 
+.image-details .media-embed h3 {
+    position: relative;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #646970;
+    margin: 24px 0 8px;
+}
+
+.media-sidebar .setting label {
+    width: 80px;
+    text-align: left;
+}
+.media-sidebar .setting select {
+    box-sizing: border-box;
+    margin: 1px;
+    font-size: 13px;
+}
+
+.media-sidebar ul.eml-filter-based {
+    margin: 0;
+}
+.media-sidebar ul.eml-filter-based li {
+    font-size: 13px;
+    color: #646970;
+}
+.media-sidebar .eml-filter-based label {
+    font-size: 12px;
+}
+
+
 
 
 /* == Attachment(s) Details Saving Styles == */
@@ -451,6 +487,20 @@ body.eml-media-css .media-modal-content .media-frame select.attachment-filters {
     vertical-align: middle;
     line-height: 28px;
     height: 28px;
+}
+
+/* duplicate from the core for Elementor, temp solution */
+.media-modal.wp-core-ui select {
+    font-size: 14px;
+    line-height: 2;
+    -webkit-appearance: none;
+     background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%; 
+     background-size: 16px 16px; 
+     padding: 0 18px 0 8px;
+     padding-inline: 8px 18px !important;
+}
+.media-modal.wp-core-ui select:hover {
+    color: #2271b1;
 }
 
 body.eml-media-css .attachments-browser .media-toolbar-secondary > .media-button {

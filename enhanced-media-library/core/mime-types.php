@@ -13,71 +13,68 @@ if ( ! defined( 'ABSPATH' ) )
  *  @created  15/10/13
  */
 
-if ( ! function_exists( 'wpuxss_eml_mimes_validate' ) ) {
+function wpuxss_eml_mimes_validate( $input ) {
 
-    function wpuxss_eml_mimes_validate( $input ) {
-
-        if ( ! $input ) $input = array();
+    if ( ! $input ) $input = array();
 
 
-        if ( isset( $_POST['eml-restore-mime-types-settings'] ) ) {
-
-            add_settings_error(
-                'mime-types',
-                'eml_mime_types_restored',
-                __('MIME Types settings restored.', 'enhanced-media-library'),
-                'updated'
-            );
-
-            remove_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes' );
-            remove_filter( 'mime_types', 'wpuxss_eml_mime_types' );
-
-            $allowed_mimes    = get_allowed_mime_types();
-            $input = array();
-
-            foreach ( wp_get_mime_types() as $ext => $type ) {
-
-                $input[$ext] = array(
-                    'mime'     => $type,
-                    'singular' => $type,
-                    'plural'   => $type,
-                    'filter'   => 0,
-                    'upload'   => isset($allowed_mimes[$ext]) ? 1 : 0
-                );
-            }
-
-            return $input;
-        }
-
+    if ( isset( $_POST['eml-restore-mime-types-settings'] ) ) {
 
         add_settings_error(
             'mime-types',
-            'eml_mime_types_saved',
-            __('MIME Types settings saved.', 'enhanced-media-library'),
+            'eml_mime_types_restored',
+            __('MIME Types settings restored.', 'enhanced-media-library'),
             'updated'
         );
-        
 
-        foreach ( $input as $ext => $type ) {
+        remove_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes' );
+        remove_filter( 'mime_types', 'wpuxss_eml_mime_types' );
 
-            if ( wpuxss_eml_sanitize_extension( $ext ) !== $ext ) {
+        $allowed_mimes    = get_allowed_mime_types();
+        $input = array();
 
-                // just unset anything not appropriate as file extension
-                // @todo :: add error
-                unset($input[$ext]);
-                continue;
-            }
+        foreach ( wp_get_mime_types() as $ext => $type ) {
 
-            $input[$ext]['filter'] = isset( $type['filter'] ) && !! $type['filter'] ? 1 : 0;
-            $input[$ext]['upload'] = isset( $type['upload'] ) && !! $type['upload'] ? 1 : 0;
-
-            $input[$ext]['mime'] = sanitize_mime_type($type['mime']);
-            $input[$ext]['singular'] = sanitize_text_field($type['singular']);
-            $input[$ext]['plural'] = sanitize_text_field($type['plural']);
+            $input[$ext] = array(
+                'mime'     => $type,
+                'singular' => $type,
+                'plural'   => $type,
+                'filter'   => 0,
+                'upload'   => isset($allowed_mimes[$ext]) ? 1 : 0
+            );
         }
 
         return $input;
     }
+
+
+    add_settings_error(
+        'mime-types',
+        'eml_mime_types_saved',
+        __('MIME Types settings saved.', 'enhanced-media-library'),
+        'updated'
+    );
+    
+
+    foreach ( $input as $ext => $type ) {
+
+        if ( wpuxss_eml_sanitize_extension( $ext ) !== $ext ) {
+
+            // just unset anything not appropriate as file extension
+            // @todo :: add error
+            unset($input[$ext]);
+            continue;
+        }
+
+        $input[$ext]['filter'] = isset( $type['filter'] ) && !! $type['filter'] ? 1 : 0;
+        $input[$ext]['upload'] = isset( $type['upload'] ) && !! $type['upload'] ? 1 : 0;
+
+        $input[$ext]['mime'] = sanitize_mime_type($type['mime']);
+        $input[$ext]['singular'] = sanitize_text_field($type['singular']);
+        $input[$ext]['plural'] = sanitize_text_field($type['plural']);
+    }
+
+    return $input;
 }
 
 
@@ -91,14 +88,11 @@ if ( ! function_exists( 'wpuxss_eml_mimes_validate' ) ) {
  *  @created  24/10/13
  */
 
-if ( ! function_exists( 'wpuxss_eml_sanitize_extension' ) ) {
+function wpuxss_eml_sanitize_extension( $key ) {
 
-    function wpuxss_eml_sanitize_extension( $key ) {
-
-        $key = strtolower( $key );
-        $key = preg_replace( '/[^a-z0-9|]/', '', $key );
-        return $key;
-    }
+    $key = strtolower( $key );
+    $key = preg_replace( '/[^a-z0-9|]/', '', $key );
+    return $key;
 }
 
 
@@ -114,26 +108,23 @@ if ( ! function_exists( 'wpuxss_eml_sanitize_extension' ) ) {
 
 add_filter( 'post_mime_types', 'wpuxss_eml_post_mime_types' );
 
-if ( ! function_exists( 'wpuxss_eml_post_mime_types' ) ) {
+function wpuxss_eml_post_mime_types( $post_mime_types ) {
 
-    function wpuxss_eml_post_mime_types( $post_mime_types ) {
+    foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
+        if ( (bool) $type_array['filter'] ) {
 
-            if ( (bool) $type_array['filter'] ) {
+            $mime_type = sanitize_mime_type( $type_array['mime'] );
 
-                $mime_type = sanitize_mime_type( $type_array['mime'] );
-
-                $post_mime_types[$mime_type] = array(
-                    esc_html( $type_array['plural'] ),
-                    'Manage ' . esc_html( $type_array['plural'] ),
-                    _n_noop( esc_html( $type_array['singular'] ) . ' <span class="count">(%s)</span>', esc_html( $type_array['plural'] ) . ' <span class="count">(%s)</span>' )
-                );
-            }
+            $post_mime_types[$mime_type] = array(
+                esc_html( $type_array['plural'] ),
+                'Manage ' . esc_html( $type_array['plural'] ),
+                _n_noop( esc_html( $type_array['singular'] ) . ' <span class="count">(%s)</span>', esc_html( $type_array['plural'] ) . ' <span class="count">(%s)</span>' )
+            );
         }
-
-        return $post_mime_types;
     }
+
+    return $post_mime_types;
 }
 
 
@@ -152,35 +143,32 @@ if ( ! function_exists( 'wpuxss_eml_post_mime_types' ) ) {
 
 add_filter( 'upload_mimes', 'wpuxss_eml_upload_mimes', 10, 2 );
 
-if ( ! function_exists( 'wpuxss_eml_upload_mimes' ) ) {
+function wpuxss_eml_upload_mimes( $types, $user = null ) {
 
-    function wpuxss_eml_upload_mimes( $types, $user ) {
+    foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
+        $ext = wpuxss_eml_sanitize_extension( $ext );
 
-            $ext = wpuxss_eml_sanitize_extension( $ext );
-
-            // allow any mime type from settings
-            if ( (bool) $type_array['upload'] ) {
-                $types[$ext] = sanitize_mime_type( $type_array['mime'] );
-            }
-            else {
-                unset( $types[$ext] );
-            }
+        // allow any mime type from settings
+        if ( (bool) $type_array['upload'] ) {
+            $types[$ext] = sanitize_mime_type( $type_array['mime'] );
         }
-
-        // repeat the check from the core after adding new types
-        unset( $types['swf'], $types['exe'] );
-        if ( function_exists( 'current_user_can' ) ) {
-            $unfiltered = $user ? user_can( $user, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
+        else {
+            unset( $types[$ext] );
         }
-
-        if ( empty( $unfiltered ) ) {
-            unset( $types['htm|html'], $types['js'] );
-        }
-
-        return $types;
     }
+
+    // repeat the check from the core after adding new types
+    unset( $types['swf'], $types['exe'] );
+    if ( function_exists( 'current_user_can' ) ) {
+        $unfiltered = $user ? user_can( $user, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
+    }
+
+    if ( empty( $unfiltered ) ) {
+        unset( $types['htm|html'], $types['js'] );
+    }
+
+    return $types;
 }
 
 
@@ -197,21 +185,18 @@ if ( ! function_exists( 'wpuxss_eml_upload_mimes' ) ) {
 
 add_filter( 'mime_types', 'wpuxss_eml_mime_types' );
 
-if ( ! function_exists( 'wpuxss_eml_mime_types' ) ) {
+function wpuxss_eml_mime_types( $types ) {
 
-    function wpuxss_eml_mime_types( $types ) {
+    foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
 
-        foreach ( get_option( 'wpuxss_eml_mimes', array() ) as $ext => $type_array ) {
+        $ext = wpuxss_eml_sanitize_extension( $ext );
 
-            $ext = wpuxss_eml_sanitize_extension( $ext );
-
-            if ( ! isset( $types[$ext] ) ) {
-                $types[$ext] = sanitize_mime_type( $type_array['mime'] );
-            }
+        if ( ! isset( $types[$ext] ) ) {
+            $types[$ext] = sanitize_mime_type( $type_array['mime'] );
         }
-
-        return $types;
     }
+
+    return $types;
 }
 
 
@@ -232,82 +217,79 @@ if ( ! function_exists( 'wpuxss_eml_mime_types' ) ) {
 
 add_filter( 'wp_check_filetype_and_ext', 'wpuxss_eml_check_filetype_and_ext', 10, 5 );
 
-if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
+function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $real_mime = false ) {
 
-    function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $real_mime = false ) {
-
-        /*
-         * If the type has been set by WP - there is nothing to do
-         * If there is no real mime - there is nothing to do
-         */
-        if ( ! isset( $types['type'] ) || $types['type'] || empty( $real_mime ) ) {
-            return $types;
-        }
+    /*
+     * If the type has been set by WP - there is nothing to do
+     * If there is no real mime - there is nothing to do
+     */
+    if ( ! isset( $types['type'] ) || $types['type'] || empty( $real_mime ) ) {
+        return $types;
+    }
 
 
-        $wp_filetype = wp_check_filetype( $filename, $mimes );
-        $ext         = $wp_filetype['ext'];
-        $type        = $wp_filetype['type'];
+    $wp_filetype = wp_check_filetype( $filename, $mimes );
+    $ext         = $wp_filetype['ext'];
+    $type        = $wp_filetype['type'];
 
 
-        // @todo :: re-think all the following
-        $font_types  = array(
+    // @todo :: re-think all the following
+    $font_types  = array(
 
-            // ttf
-            'font/ttf',
-            'font/sfnt',
-            'application/x-font-ttf',       // @since 2.8.14
+        // ttf
+        'font/ttf',
+        'font/sfnt',
+        'application/x-font-ttf',       // @since 2.8.14
 
-            // otf
-            'font/otf',
-            'application/vnd.ms-opentype',
-            'application/x-font-opentype',  // @since 2.8.14
+        // otf
+        'font/otf',
+        'application/vnd.ms-opentype',
+        'application/x-font-opentype',  // @since 2.8.14
 
-            // woff
-            'font/woff',
-            'font/woff2',
-            'application/font-woff',        // @since 2.8.14
-            'application/font-woff2',       // @since 2.8.14
+        // woff
+        'font/woff',
+        'font/woff2',
+        'application/font-woff',        // @since 2.8.14
+        'application/font-woff2',       // @since 2.8.14
 
-            // general
-            'application/octet-stream',     // @since 2.8.12
-        );
+        // general
+        'application/octet-stream',     // @since 2.8.12
+    );
 
-        if ( in_array( $real_mime, $font_types, true ) ) {
-            if ( ! in_array( substr( $type, 0, strcspn( $type, '/' ) ), array( 'application', 'font' ), true ) ) {
-                $type = false;
-                $ext  = false;
-            }
-        } else {
-            /*
-             * Everything else's assumed to be dangerous because it initially
-             * came from wp_check_filetype_and_ext() with the mime type mismatch
-             */
+    if ( in_array( $real_mime, $font_types, true ) ) {
+        if ( ! in_array( substr( $type, 0, strcspn( $type, '/' ) ), array( 'application', 'font' ), true ) ) {
             $type = false;
             $ext  = false;
         }
-
-        // The mime type must be allowed.
-        if ( $type ) {
-            $allowed = get_allowed_mime_types();
-
-            // @todo :: consider this check
-            // Either passed or real mime type must be allowed for upload
-            // if (    ! in_array( $type, $allowed, true ) && 
-            //         ! in_array( $real_mime, $allowed, true ) 
-            // ) {
-
-            if ( ! in_array( $type, $allowed, true ) ) {
-                $type = false;
-                $ext  = false;
-            }
-        }
-
-        $types['type'] = $type;
-        $types['ext'] = $ext;
-
-        return $types;
+    } else {
+        /*
+         * Everything else's assumed to be dangerous because it initially
+         * came from wp_check_filetype_and_ext() with the mime type mismatch
+         */
+        $type = false;
+        $ext  = false;
     }
+
+    // The mime type must be allowed.
+    if ( $type ) {
+        $allowed = get_allowed_mime_types();
+
+        // @todo :: consider this check
+        // Either passed or real mime type must be allowed for upload
+        // if (    ! in_array( $type, $allowed, true ) && 
+        //         ! in_array( $real_mime, $allowed, true ) 
+        // ) {
+
+        if ( ! in_array( $type, $allowed, true ) ) {
+            $type = false;
+            $ext  = false;
+        }
+    }
+
+    $types['type'] = $type;
+    $types['ext'] = $ext;
+
+    return $types;
 }
 
 
@@ -333,11 +315,11 @@ if ( ! function_exists( 'wpuxss_eml_check_filetype_and_ext' ) ) {
  *  @created  12/2021
  */
 
-add_filter( 'wp_generate_attachment_metadata', function( $metadata, $attachment_id, $context ) {
+add_filter( 'wp_generate_attachment_metadata', function( $metadata, $attachment_id, $context = '' ) {
 
     if ( get_post_mime_type( $attachment_id ) == 'image/svg+xml' ) {
         $svg_path = get_attached_file( $attachment_id );
-        $dimensions = wpuxss_svg_dimensions( $svg_path );
+        $dimensions = wpuxss_eml_svg_dimensions( $svg_path );
         $metadata['width'] = $dimensions->width;
         $metadata['height'] = $dimensions->height;
     }
@@ -367,7 +349,7 @@ add_filter( 'wp_prepare_attachment_for_js', function( $response, $attachment, $m
             $svg_path = $response['url'];
         }
 
-        $dimensions = wpuxss_svg_dimensions( $svg_path );
+        $dimensions = wpuxss_eml_svg_dimensions( $svg_path );
         $response['sizes'] = array(
             'full' => array(
                 'url'         => $response['url'],
@@ -384,7 +366,7 @@ add_filter( 'wp_prepare_attachment_for_js', function( $response, $attachment, $m
 
 
 /**
- *  wpuxss_svg_dimensions
+ *  wpuxss_eml_svg_dimensions
  *
  *  Get SVG dimensions
  *
@@ -392,29 +374,26 @@ add_filter( 'wp_prepare_attachment_for_js', function( $response, $attachment, $m
  *  @created  12/2021
  */
 
-if ( ! function_exists( 'wpuxss_svg_dimensions' ) ) {
+function wpuxss_eml_svg_dimensions( $svg ) {
 
-    function wpuxss_svg_dimensions( $svg ) {
+    $svg = simplexml_load_file( $svg );
+    $width = 0;
+    $height = 0;
 
-        $svg = simplexml_load_file( $svg );
-        $width = 0;
-        $height = 0;
+    if ( $svg ) {
 
-        if ( $svg ) {
+        $attributes = $svg->attributes();
 
-            $attributes = $svg->attributes();
-
-            if( isset( $attributes->width, $attributes->height ) ) {
-                $width = (int) $attributes->width;
-                $height = (int) $attributes->height;
-            } elseif ( isset( $attributes->viewBox ) ) {
-                $sizes = explode( ' ', $attributes->viewBox );
-                if( isset( $sizes[2], $sizes[3] ) ) {
-                    $width = (int) $sizes[2];
-                    $height = (int) $sizes[3];
-                }
+        if( isset( $attributes->width, $attributes->height ) ) {
+            $width = (int) $attributes->width;
+            $height = (int) $attributes->height;
+        } elseif ( isset( $attributes->viewBox ) ) {
+            $sizes = explode( ' ', $attributes->viewBox );
+            if( isset( $sizes[2], $sizes[3] ) ) {
+                $width = (int) $sizes[2];
+                $height = (int) $sizes[3];
             }
         }
-        return (object) array( 'width' => $width, 'height' => $height );
     }
+    return (object) array( 'width' => $width, 'height' => $height );
 }

@@ -57,7 +57,7 @@ a.eml-pro {
 /* == ui-dialog Styles == */
 
 .eml-dialog-modal {
-    /*z-index: 300000 !important;*/
+   z-index: 300000 !important; /* important for the media popups */
 }
 .eml-dialog-modal,
 .eml-dialog-modal p{
@@ -414,7 +414,8 @@ a.eml-pro {
     font-size: 40px;
     width: 40px;
     height: 40px;
-    margin: 0 10px 0 5px;  
+    margin: 8px 13px 0 5px;
+    align-self: flex-start;
 }
 
 .eml-admin-notice.notice.is-dismissible {
@@ -434,9 +435,18 @@ a.eml-pro {
 }
 .eml-admin-notice.notice .button {
     flex-grow: 0;
-    padding: 2px 15px;
-    margin: 0 10px;
+    padding: 2px 10px 2px 15px;
+    margin: 0 15px;
     border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+}
+.eml-admin-notice.notice .button::after {
+    content: url(data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%23fff%22%3E%3Cpath%20d%3D%22M251.77-254.23%20210-296l393.62-394H245.77v-60h460v460h-60v-357.85l-394%20393.62Z%22%2F%3E%3C%2Fsvg%3E);
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+    margin-left: 8px;
 }
 
 .eml-admin-notice.notice.notice-news {

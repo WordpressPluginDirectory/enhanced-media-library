@@ -9,6 +9,8 @@
         orderValue = $('#wpuxss_eml_lib_options_media_order').val();
         $('#wpuxss_eml_lib_options_media_orderby').trigger( 'change' );
         $('#wpuxss_eml_lib_options_grid_show_caption').trigger( 'change' );
+        $('#wpuxss_eml_lib_options_search_on_enter').trigger( 'change' );
+        $('#wpuxss_eml_lib_options_search_auto').trigger( 'change' );
     });
 
 
@@ -46,6 +48,24 @@
         if ( ! $( '#wpuxss_eml_lib_options_search_in input.search_columns:checked' ).length ) {
             $( event.target ).prop( 'checked', true );
         }
+    });
+
+
+    $( document ).on( 'change', '#wpuxss_eml_lib_options_search_on_enter', function( event ) {
+
+        var isChecked = $(this).prop( 'checked' );
+
+        if ( ! isChecked ) {
+            $('#wpuxss_eml_lib_options_search_auto').prop( 'checked', true ).trigger( 'change' );
+        }
+        $('#wpuxss_eml_lib_options_search_auto').prop( 'disabled', ! isChecked );
+    });
+
+    $( document ).on( 'change', '#wpuxss_eml_lib_options_search_auto', function( event ) {
+
+        var isChecked = $(this).prop( 'checked' );
+
+        $('#wpuxss_eml_lib_options_search_min_letters').prop( 'hidden', ! isChecked );
     });
 
 })( jQuery );
