@@ -233,6 +233,11 @@ function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $r
     $type        = $wp_filetype['type'];
 
 
+    if ( ! $type ) {
+        return $types;
+    }
+
+
     // @todo :: re-think all the following
     $font_types  = array(
 
@@ -256,8 +261,20 @@ function wpuxss_eml_check_filetype_and_ext( $types, $file, $filename, $mimes, $r
         'application/octet-stream',     // @since 2.8.12
     );
 
+    $ms_types = array(
+
+        // for now it's for xlsm since finfo_file() returns this as its mime type
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    );
+
     if ( in_array( $real_mime, $font_types, true ) ) {
         if ( ! in_array( substr( $type, 0, strcspn( $type, '/' ) ), array( 'application', 'font' ), true ) ) {
+            $type = false;
+            $ext  = false;
+        }
+    } else if ( in_array( $real_mime, $ms_types, true ) ) {
+        if ( ! str_contains( $type, 'application/vnd.ms-excel' ) ) {
             $type = false;
             $ext  = false;
         }

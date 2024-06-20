@@ -5,7 +5,7 @@ Tags: media library, media folders, media tags, media categories, mime types
 Requires at least: 6.0
 Tested up to: 6.5.4
 Requires PHP: 5.6
-Stable tag: 2.9.2
+Stable tag: 2.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,8 +178,11 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 
 ## Changelog ##
 
-### 2.9.2 ###
-*Release Date - June 14, 2024*
+### 2.9.3 ###
+*Release Date - June 19, 2024*
+
+= Improvement = 
+* `xlsm` file type upload ensured if allowed
 
 = SECURITY UPDATE =
 * Security issue related to MIME types upload has been fixed since v2.8.10. Please update to the latest version on all your websites.
@@ -187,14 +190,18 @@ Please notice that you use Enhanced Media Library with other plugins that add me
 = Notes =
 * EML is compatible with PHP 5.6, 7, and 8. Don't hesitate to update. If you previously had issues because of the PHP version, it's not the case anymore.
 
-= Bugfixes =
-* Elementor compatibility bug of v2.9.1 (not showing filters in Elementor's media popup) fixed
-
 = Thank you! =
 For being EML users for so many years.
 * *This update has been issued in Ukraine under everyday missile attacks.*
 * *Please do not buy into ruzzian lies and propaganda. This aggression is unprovoked, illegal, and unfair. The people of Ukraine have all the right to live peacefully without ungrounded ruzzian claims and crimes committed.* 
 * *Support Ukraine. Unimaginable for a human to support Nazi russia because of "culture" and Dostoevsky as it is unimaginable to support Hitler because of Goethe. Erich Maria Remarque and Thomas Mann left Nazi Germany and spoke out against Nazism as many other decent Germans did. While you won't be able to name a single modern russian writer, not to mention...*
+
+
+### 2.9.2 ###
+*Release Date - June 14, 2024*
+
+= Bugfixes =
+* Elementor compatibility bug of v2.9.1 (not showing filters in Elementor's media popup) fixed
 
 
 ### 2.9.1 ###
